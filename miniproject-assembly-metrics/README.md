@@ -43,3 +43,29 @@ Average length: 39630.17
 Number of contigs: 187   
 Total length: 130480874   
 Average length: 697758.68   
+   
+**N50 statistic**   
+Commands and outputs:   
+./assembly-metrics.py caenorhabditis_remanei.PRJNA248909.WBPS19.genomic.fa   
+Number of contigs: 1591   
+Total length: 118549266   
+Average length: 74512.42   
+Sequence length of the shortest contig at 50% of the total assembly length: 1522088   
+   
+./assembly-metrics.py caenorhabditis_remanei.PRJNA248911.WBPS19.genomic.fa   
+Number of contigs: 912   
+Total length: 124541912   
+Average length: 136559.11   
+Sequence length of the shortest contig at 50% of the total assembly length: 1765890   
+   
+./assembly-metrics.py caenorhabditis_remanei.PRJNA53967.WBPS19.genomic.fa   
+Number of contigs: 3670   
+Total length: 145442736   
+Average length: 39630.17   
+Sequence length of the shortest contig at 50% of the total assembly length: 435512   
+   
+./assembly-metrics.py caenorhabditis_remanei.PRJNA577507.WBPS19.genomic.fa   
+Number of contigs: 187   
+Total length: 130480874   
+Average length: 697758.68    
+Sequence length of the shortest contig at 50% of the total assembly length: 21501900   
