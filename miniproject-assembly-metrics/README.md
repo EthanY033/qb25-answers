@@ -1,3 +1,3 @@
-**READ ME**  
+**My Mini Project**  
    
-This is a start of the first mini project
+This is the start of my first mini project
