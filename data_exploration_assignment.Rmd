@@ -1,0 +1,193 @@
+In this exercise, you will practice basic `dplyr` (the relevant package within `tidyverse`) operations on a dataset of gene expression levels across human tissues (from the GTEx Project). The dataset (`dt`) has one row per gene, with columns:
+
+-   `Name`: the Ensembl gene ID\
+-   `Description`: the gene symbol
+-   One column per tissue containing the median expression levels (in TPM units)
+
+------------------------------------------------------------------------
+
+### Start by loading the data into R:
+
+Note the arguments, which specify that the first two lines of the file will be skipped, that the file contains a header line that should be used to form column names, and that the columns are tab (`\t`) separated.
+
+```{r}
+library(tidyverse)
+dt <- read_delim("GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz", skip = 2, col_names = TRUE)
+#, sep = "\t")
+```
+
+### Q1. How many genes are in the dataset, and how many tissues are represented?
+
+```{r}
+# code and answer here
+cat("The number of genes in this file:", dim(dt)[1])
+cat("The number of tissues in this file:", dim(dt)[2] - 2)
+```
+
+------------------------------------------------------------------------
+
+### Q2. How many genes are expressed above a given threshold in each tissue?
+
+A common threshold is 1 TPM to define whether a gene is "expressed."\
+Compute, for each of the three tissues, `Liver`, `Testis`, and `Whole Blood`, how many genes are expressed above this threshold.\
+Then identify which tissue has the **most** and which has the **fewest** expressed genes. See this paper for one possible explanation: Xia et al. 2021: [PMC7891839](https://pmc.ncbi.nlm.nih.gov/articles/PMC7891839/).
+
+Do the results change if you set the threshold higher, say at 10 TPM?
+
+```{r}
+# Code here
+dt_genes <- dt %>%
+  select(Name, Liver, Testis, `Whole Blood`)
+
+liver_1 <- dt_genes %>% 
+  filter(Liver > 1) %>% 
+  dim()
+cat("Number of genes expressed above 1 TPM in liver:", liver_1[1], "\n")
+
+testis_1 <- dt_genes %>% 
+  filter(Testis > 1) %>% 
+  dim()
+cat("Number of genes expressed above 1 TPM in testis:", testis_1[1], "\n")
+
+blood_1 <- dt_genes %>% 
+  filter(`Whole Blood` > 1) %>% 
+  dim()
+cat("Number of genes expressed above 1 TPM in whole blood:", blood_1[1], "\n")
+
+# Interpretation here as a comment
+cat("Testis has the most expressed genes and whole blood has the fewest.\n\n")
+
+liver_10 <- dt_genes %>% 
+  filter(Liver > 10) %>% 
+  dim()
+cat("Number of genes expressed above 10 TPM in liver:", liver_10[1], "\n")
+
+testis_10 <- dt_genes %>% 
+  filter(Testis > 10) %>% 
+  dim()
+cat("Number of genes expressed above 10 TPM in testis:", testis_10[1], "\n")
+
+blood_10 <- dt_genes %>% 
+  filter(`Whole Blood` > 10) %>% 
+  dim()
+cat("Number of genes expressed above 10 TPM in whole blood:", blood_10[1], "\n")
+
+# Interpretation here as a comment
+# "When the threshold rises to 10 TPM, the result doesn't change.
+# Testis has the most expressed genes and whole blood has the fewest.
+# Explanation: according to the findings in the reference article, genes in testis undergo widespread-transcription for transcription-coupled repair (TCR). This contributes to reduce the mutation rate in DNA during spermatogenesis.
+
+```
+
+------------------------------------------------------------------------
+
+### Q3. What are the 20 most highly expressed genes in the liver?
+
+What do you notice about many of the genes in this list? Can you propose a hypothesis to explain your observation?
+
+```{r}
+# Code here
+dt_liver_arr <- dt %>% 
+  select(Name, Description, Liver) %>% 
+  arrange(-Liver)
+print(dt_liver_arr[1:20, ])
+
+# Interpretation here as a comment
+# Most highly expressed genes in liver are mitochondrial genes encoding proteins involved in aerobic respiration, like electron transport chain. Liver is an important metabolism organ in human body, carrying out heavy duties on oxidizing carbohydrate to generate energy and heat. Mitochondria are the main sites for aerobic respiration, thus explains why mitochondria genes are highly expressed in liver.
+```
+
+------------------------------------------------------------------------
+
+### Q4. Compare the mean expression levels of mitochondrial versus nuclear-encoded genes in the Liver.
+
+Genes encoded by the mitochondrial genome have the gene symbol prefix `MT-`. The function `str_starts()` from the `stringr` package in `tidyverse` tests whether a string (or a vector of strings) start with a given pattern, returning TRUE/FALSE (or a boolean vector) as output.
+
+Use `str_starts()` to identify which genes are mitochondrially encoded and store this information in a new Boolean column named `is_mitochondrial`. Next, compute the mean and median expression of mitochondrial genes in the liver, as well as the mean and median expression of nuclear-encoded genes in the liver and compare them. Do mitochondrial genes exhibit higher or lower mean and median expression than nuclear genes? What does the difference between the mean and median tell you about the distribution of gene expression.
+
+```{r}
+# Code here
+dt$"is_mitochondrial" <- str_starts(dt$Description, "MT-")
+dt_liver <- dt %>% 
+  select(Name, Description, Liver, is_mitochondrial)
+
+nuclear_genes <- dt_liver %>% 
+  filter(is_mitochondrial == FALSE)
+nuclear <- c(mean(nuclear_genes$Liver), median(nuclear_genes$Liver))
+cat("The mean of expression of nuclear gene is:", nuclear[1], "\n")
+cat("The median of expression of nuclear gene is:", nuclear[2], "\n")
+
+mito_genes <- dt_liver %>% 
+  filter(is_mitochondrial == TRUE)
+mito <- c(mean(mito_genes$Liver), median(mito_genes$Liver))
+cat("The mean of expression of mitochondrial gene is:", mito[1], "\n")
+cat("The median of expression of mitochondrial gene is:", mito[2])
+
+# Interpretation here as a comment
+# The mean and median of the expression of mitochondrial genes are much higher than nuclear genes. This shows that overall, expression levels of mitochondrial genes are higher than nuclear genes. 
+```
+
+------------------------------------------------------------------------
+
+### Q5. Are liver’s most highly expressed genes also highly expressed in another tissue?
+
+Take the 20 most highly expressed genes in **Liver** and check how they are expressed in the **Heart - Left Ventricle**. Identify:\
+1. one gene that is highly expressed in both tissues\
+2. one gene that is highly expressed in Liver but very low in Heart
+
+Look up basic information about these genes on the internet. Do their expression patterns make sense given their known functions?
+
+```{r}
+# Code here
+dt_heart <- dt %>%
+  select(Name, Description, Liver, `Heart - Left Ventricle`) %>% 
+  filter(Name %in% dt_liver_arr$Name[1:20]) %>% 
+  arrange(-Liver)
+  
+dt_heart$Liver_rank <- c(1:20)
+dt_heart <- dt_heart %>% 
+  arrange(-`Heart - Left Ventricle`) %>% 
+print(dt_heart[1:20, ])
+# Interpretation here as a comment
+# One gene highly expressed in both liver and heart: MT-ATP6
+# Its function: MT-ATP6 encodes for the subunit 'a' of the ATP synthase complex in mitochondria, which is a key part in electron transport chain. 
+# Explanation: Both heart and liver require high level of energy, stored in ATP, to operate normally. ATP synthase generates ATP in electron transport chain, thus MT-ATP6 is highly expressed both in liver and heart. 
+
+# One gene highly expressed in liver but lowly in heart: FGB
+# Its function: FGB gene is located on chromosome 4 in humans. It encodes the fibrinogen beta chain protein, which is a key component of fibrinogen.
+# Explanation: Fibrinogen is a protein that presents in blood, playing a crucial role in blood clotting. It is produced by hepatocytes in the liver, and later secreted into blood. As liver is the primary production site for fibrinogen, it makes sense that FGB is highly expressed in liver but lowly in heart.
+```
+
+------------------------------------------------------------------------
+
+### Q6. Comparing gene expression between tissues
+
+Another way to compare tissues is to ask how similar are their expression patterns overall, across all genes?
+
+R has a built-in function called `cor.test()` that measures the correlation between two vectors of numbers. Remember that you can extract the contents of a given column of a tibble as a vector using the syntax `tibble_name$column_name`. If a column name contains spaces, enclose the column name in backticks such as `` tibble_name$`column name` ``.
+
+Use `cor.test()` with the argument `method = "kendall"` to compute: - the Spearman correlation between `Liver` and `Heart - Left Ventricle` - the Spearman correlation between `Liver` and `Brain - Cortex`
+
+Which pair of tissues is more strongly correlated? Does this result make sense biologically?
+
+```{r}
+# Liver vs Heart answer
+liver_heart <- cor.test(dt$Liver, dt$`Heart - Left Ventricle`, method = "kendall")
+cat("The Spearman correlation between Liver and Heart - Left Ventricle is:", liver_heart$estimate)
+
+# Liver vs Brain answer
+liver_brain <- cor.test(dt$Liver, dt$`Brain - Cortex`, method = "kendall")
+cat("The Spearman correlation between Liver and Brain - Cortex is:", liver_brain$estimate)
+
+# interpretation
+# Liver and heart - left ventricle are correlated more strongly than liver and brain - cortex, because the former pair's Spearman correlation is larger than the later. The makes sense since liver is a metabolic and synthetic organ, and heart is a restless muscle. They both require huge amounts of energy to function normally, so they both must highly express genes involved in nutrient transportation and cellular respiration. However, compared to liver and heart, brain, as a cluster of neurons, must highly express genes involved in neural signal transduction, like neurotransmitter production and vesicular transport, besides energy production. These differences in genes expressed result in a lower correlation. 
+```
+
+------------------------------------------------------------------------
+
+### Optional: further exploration
+
+What other patterns are present in the data? Use tidyverse functions to explore and summarize the data in different ways and see what you can learn.
+
+```{r}
+# answer here
+```
