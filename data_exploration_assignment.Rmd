@@ -172,7 +172,7 @@ Which pair of tissues is more strongly correlated? Does this result make sense b
 ```{r}
 # Liver vs Heart answer
 liver_heart <- cor.test(dt$Liver, dt$`Heart - Left Ventricle`, method = "kendall")
-cat("The Spearman correlation between Liver and Heart - Left Ventricle is:", liver_heart$estimate)
+cat("The Spearman correlation between Liver and Heart - Left Ventricle is:", liver_heart$estimate, "\n")
 
 # Liver vs Brain answer
 liver_brain <- cor.test(dt$Liver, dt$`Brain - Cortex`, method = "kendall")
