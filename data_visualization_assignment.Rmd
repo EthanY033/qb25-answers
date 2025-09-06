@@ -1,0 +1,207 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+In this exercise, you will practice basic plotting with **`ggplot2`** on a dataset of median gene expression levels across samples from various human tissues from the GTEx Project. The dataset (`dt`) has one row per gene, with columns:
+
+-   `Name`: the Ensembl gene ID
+-   `Description`: the gene symbol
+-   One column per tissue containing the median expression levels (in TPM units)
+
+Insert your code into the empty code blocks. Insert answers any comprehension questions as comments within the code blocks. You do not need to submit the figures themselves, only the code used to produce them. Remember to label your axes!
+
+------------------------------------------------------------------------
+
+### Load data
+
+Start by loading the data into R, as before.
+
+```{r load-data}
+library(tidyverse)
+dt <- read_delim(
+  "/Users/cmdb/qbb2025/bootcamp/day4_morning/GTEx_Analysis_2017-06-05_v8_RNASeQCv1.1.9_gene_median_tpm.gct.gz",
+  skip = 2, col_names = TRUE, delim = "\t"
+)
+```
+
+------------------------------------------------------------------------
+
+### Q1. Histogram
+
+Make a histogram of gene expression in the liver. Use the argument `breaks = seq(0, 100, 2)` to bin in units of 2 TPM, ranging from 0 to 100. Note that this cuts off the data at 100, which might be misleading depending on what we are trying to depict!
+
+What do you notice about the shape of the distribution? What does it tell you about the relative expression of genes in the liver transcriptome? Do you think this is specific to the liver? Check another tissue, as well.
+
+```{r q1}
+# answer here
+dt_liver <- dt %>%
+  select(Name, Liver)
+
+ggplot(dt_liver, aes(x = Liver)) +
+  geom_histogram(bins = 30, breaks = seq(0, 100, 2)) +
+  labs(
+    x = "Gene expression levels (TPM) (Restricted to 0-100)",
+    y = "Number of genes",
+    title = "Gene expression in liver"
+  )
+
+# Plot gene expression in heart as well
+dt_liver_heart <- dt %>%
+  select(Name, Liver, `Heart - Left Ventricle`) %>% 
+  pivot_longer(
+    cols = c(Liver, `Heart - Left Ventricle`),
+    names_to = "tissue",
+    values_to = "expression")
+
+ggplot(dt_liver_heart, aes(x = expression, fill = tissue)) +
+  geom_histogram(bins = 30, position = "dodge", breaks = seq(0, 100, 2)) +
+  labs(
+    x = "Gene expression levels (TPM) (Restricted to 0-100)",
+    y = "Number of genes",
+    title = "Gene expression in liver and heart - left ventricle"
+  )
+
+# Written answers as comments:
+# I notice that number of genes expressed at levels close to zero is greatly numerous. As the expression level rises, the number genes expressed decreases quickly. This means most genes are not expressed or expressed at low levels. Only a very little portion of genes are highly expressed compared to the total number of genes. 
+# Gene expression in heart - left ventricle is plotted comparing with that of liver. Similar pattern is also observed in heart - left ventricle. This shows that gene expression follows the same pattern in these two tissues, with most expressed lowly and few expressed highly.
+```
+
+------------------------------------------------------------------------
+
+### Q2. Density plot
+
+Going back to the liver, now represent the same data with a density plot rather than a histogram. Do not restrict the X axis. Within the same code block, create a second plot where you scale the X axis to a log10 scale. Add a pseudo-count of 1 to the expression values, as the log of 0 is negative infinity.
+
+```{r q2}
+# answer here
+# Original x axis
+ggplot(dt_liver, aes(x = Liver)) +
+  geom_density() +
+  labs(
+    x = "Gene expression levels (TPM)",
+    y = "Number of genes",
+    title = "Gene expression in liver"
+  ) +
+  theme_minimal()
+
+# log10 x axis
+ggplot(dt_liver, aes(x = Liver + 1)) +
+  geom_density() +
+  scale_x_log10() +
+  labs(
+    x = "log10 (Gene expression levels + 1 (TPM))",
+    y = "Number of genes",
+    title = "Gene expression in liver"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+### Q3. Scatter plot
+
+Make a scatter plot comparing the expression genes in the `Liver` to the same genes in the `Heart - Left Ventricle`. Add a pseudocount to each and log10 scale both the X and Y axes. Adjust the point size to 1 and the alpha (opacity) to 0.2. Add a dashed red line along the diagonal (y = x).
+
+```{r q3}
+# answer here
+dt_liver_heart_wide <- dt %>%
+  select(Name, Description, Liver, `Heart - Left Ventricle`)
+
+ggplot(dt_liver_heart_wide, aes(x = Liver + 1, y = `Heart - Left Ventricle` + 1)) +
+  geom_point(alpha = 0.2, size = 1) +
+  scale_x_log10() + 
+  scale_y_log10() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  labs(
+    x = "log10 (Gene expression levels in liver + 1 (TPM))",
+    y = "log10 (Gene expression levels in heart - left ventricle + 1 (TPM))",
+    title = "Comparison of genes' expression between in Liver and in Heart - Left Ventricle"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+### Q4. Colored points on scatter plot
+
+Color the previous scatter plot points based on whether the genes are mitochondrial vs nuclear encoded. Note that the tidyverse function `str_starts()` can test whether a string starts with a specific pattern.
+
+```{r q4}
+# answer here
+dt_liver_heart_wide$"is_mitochondrial" <- str_starts(dt_liver_heart_wide$Description, "MT-")
+dt_liver_heart_wide <-  dt_liver_heart_wide %>% 
+  mutate(nuclear_or_mito = case_when(
+    is_mitochondrial == TRUE ~ "Mitochondrial",
+    is_mitochondrial == FALSE ~ "Nuclear"))
+
+ggplot(dt_liver_heart_wide, aes(x = Liver + 1, y = `Heart - Left Ventricle` + 1, color = nuclear_or_mito)) +
+  geom_point(alpha = 0.2, size = 1) +
+  scale_x_log10() + 
+  scale_y_log10() +
+  scale_color_manual(name = "Nuclear or Mitochondrial", values = c("red", "green")) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  labs(
+    x = "log10 (Gene expression levels in liver + 1 (TPM))",
+    y = "log10 (Gene expression levels in heart - left ventricle + 1 (TPM))",
+    title = "Comparison of genes' expression between in Liver and in Heart - Left Ventricle"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+### Q5. Facets
+
+Repeat question 1 (histogram), but faceting such that you create separate panels (arranged horizontally) for several tissues of interest:
+
+```{r}
+focal_tissues <- c("Liver", "Testis", "Whole Blood", "Heart - Left Ventricle", "Brain - Cortex")
+```
+
+This requires first converting the data into "long" format with `pivot_longer()`:
+
+```{r}
+dt$"is_mitochondrial" <- str_starts(dt$Description, "MT-")
+dt_long <- dt %>%
+  select("Description", "is_mitochondrial", all_of(focal_tissues)) %>%
+  pivot_longer(cols = focal_tissues, names_to = "Tissue", values_to = "TPM")
+```
+
+After creating 5-panel plot, also split into two rows that separate genes that are versus are not encoded by the mitochondrial genome (10 panels). Use the argument `scales = "free_y"` to deal with the fact that there are far fewer mitochondrial-encoded than nuclear-encoded genes.
+
+```{r q5}
+# your code for 5-panel plot
+ggplot(dt_long, aes(x = TPM)) +
+  geom_histogram(bins = 30, breaks = seq(0, 100, 2)) +
+  facet_grid(. ~ Tissue) +
+  labs(
+    x = "Gene expression levels (TPM) (Restricted to 0-100)",
+    y = "Number of genes",
+    title = "Gene expression in several tissues") +
+  theme_bw()
+
+# your code for 10-panel plot
+dt_long_mito <-  dt_long %>% 
+  mutate(nuclear_or_mito = case_when(
+    is_mitochondrial == TRUE ~ "Mitochondrial",
+    is_mitochondrial == FALSE ~ "Nuclear"))
+
+ggplot(dt_long_mito, aes(x = TPM)) +
+  geom_histogram(bins = 30, breaks = seq(0, 100, 2)) +
+  facet_grid(nuclear_or_mito ~ Tissue, scales = "free_y") +
+  labs(
+    x = "Gene expression levels (TPM) (Restricted to 0-100)",
+    y = "Number of genes",
+    title = "Gene expression in several tissues") +
+  theme_bw()
+```
+
+------------------------------------------------------------------------
+
+Optional: Have fun and explore these data! Create your own plots and interpret them.
+
+```{r q6}
+
+# answer here
+```
