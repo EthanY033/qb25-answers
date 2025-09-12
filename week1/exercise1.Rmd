@@ -1,0 +1,24 @@
+---
+title: "exercise1"
+author: "Yiran Yan"
+date: "2025-09-12"
+output: pdf_document
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+header <- c( "chr", "start", "end", "count" )
+df_kc <- read_tsv("hg19-kc-count.bed", col_names=header)
+head(df_kc)
+
+ggplot(df_kc, aes(x=start, y=count)) +
+  geom_line() +
+  facet_wrap(chr ~ ., scales = "free") +
+  labs(x = "Start position (bp)", 
+       y = "Gene number", 
+       title = "Gene density on every chromosome") +
+  theme_minimal()
+
+ggsave("exercise1.png")
+```
+
