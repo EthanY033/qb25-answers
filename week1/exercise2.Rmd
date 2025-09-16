@@ -1,0 +1,30 @@
+---
+title: "exercise2"
+author: "Yiran Yan"
+date: "2025-09-12"
+output: pdf_document
+---
+
+```{r setup, include=TRUE}
+library(tidyverse)
+header <- c( "chr", "start", "end", "count" )
+dfA <- read_tsv("hg19-kc-count.bed", col_names=header)
+dfB <- read_tsv("hg16-kc-count.bed", col_names=header)
+dfAB <- bind_rows( hg19=dfA, hg16=dfB, .id="assembly" )
+
+# Unify the mitochondrial chromosome names, "chrM" in hg19 and "chrMT" in hg16, to "chrM"
+dfAB <- dfAB %>%
+  mutate(chr = case_when(chr == "chrMT" ~ "chrM",
+                         TRUE ~ chr))
+
+ggplot(dfAB, aes(x=start, y=count, color = assembly)) +
+  geom_line() +
+  facet_wrap(chr ~ ., scales = "free") +
+  labs(x = "Start position (bp)", 
+       y = "Gene number", 
+       title = "Gene density on every chromosome, comparing hg19 and hg16") +
+  theme_minimal()
+
+ggsave("exercise2.png")
+```
+
