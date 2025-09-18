@@ -76,23 +76,41 @@ bedtools intersect -f 1 -F 1 -a nhek-active.bed -b nhlf-active.bed | head -1
 # Active in NHEK, Active in NHLF:
 bedtools intersect -a nhek-active.bed -b nhlf-active.bed | head -1
 #chr1	19923013	19924213	1_Active_Promoter	0	.	19922613	19924613
-# The active sequence from nhek-active.bed includes the active one from 
-# nhlf-active.bed. The length of the active sequences from nhek-active.bed is 
-# longer than the active ones from nhlf-active.bed
+# NHLF: all active
+# NHEK: all active
+# K562: mostly active but some are strong enhancers
+# HUVEC: mostly active but some are strong enhancers
+# HSMM: all active
+# HMEC: mostly active but some are strong enhancers
+# HepG2: all active
+# H1-hESC: all active
+# GM12878: all active
 
 # Active in NHEK, Repressed in NHLF:
 bedtools intersect -a nhek-active.bed -b nhlf-repressed.bed | head -1
 #chr1	1981140	1981540	1_Active_Promoter	0	.	1981140	1981540
-# The repressive sequences from nhlf-repressed.bed includes the active one from 
-# nhek-active.bed. The length of the repressed sequence from nhlf-repressed.bed is
-# longer than the active one from nhek-active.bed
+# NHLF: all repressed
+# NHEK: all active
+# K562: some are weak enhancer and some are insulator
+# HUVEC: some are repressed and some are poised
+# HSMM: all repressed
+# HMEC: all active
+# HepG2: all strong enhancers
+# H1-hESC: all active
+# GM12878: all active
 
 # Repressed in NHEK, Repressed in NHLF: 
 bedtools intersect -a nhek-repressed.bed -b nhlf-repressed.bed | head -1
 #chr1	11537413	11538213	12_Repressed	0	.	11534013	11538613
-# The repressive sequence from nhek-repressed.bed includes the repressed one from 
-# nhlf-repressed.bed. The length of the repressed sequence from nhek-repressed.bed is
-# longer than the repressed one from nhlf-repressed.bed
+# NHLF: all repressed
+# NHEK: all repressed
+# K562: all heterochromotin
+# HUVEC: all heterochromotin
+# HSMM: all repressed
+# HMEC: all repressed
+# HepG2: all heterochromotin
+# H1-hESC: all repressed
+# GM12878: all heterochromotin
 
 mv ~/Downloads/active-active.pdf ./ 
 mv ~/Downloads/active-repressed.pdf ./
