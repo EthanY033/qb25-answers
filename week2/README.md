@@ -20,4 +20,4 @@ minimap2 -ax map-ont ../genomes/sacCer3.fa ERR8562478.fastq > longreads.sam
 **Exercise 5**     
 Hisat2 command:    
 hisat2 -p 4 -x ../genomes/sacCer3 -U ../rawdata/SRR10143769.fastq > rna.sam   
-Description: the end of the genes appear to have the most coverage.    
+Description: the end of the genes appear to have the most coverage.     
