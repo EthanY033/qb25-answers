@@ -19,10 +19,10 @@ The slope of this relationship is 1.35384. The slope means that in this model, f
 2. Is the relationship significant? How do you know? Explain the p-value in plain but precise language.     
     
 This relationship is significant due to small p values of slope and intercept. The p value refers to the possibility of getting such a relationship between paternal age and paternal DNM numbers just by random chance, with no actual relationship between two variables and the null hypothesis is true. The p value of both intercept and slope are smaller than 0.001, meaning that the relationship is very significant.    
+      
      
-    
-    
-**Question in Step 2.4**    
+     
+**Question in Step 2.4**   
 Use the paternal regression model to predict the expected number of paternal DNMs for a father of age 50.5.   
     
 Code using predict() function to calculate the result is shown in R_script.R file.   
@@ -46,3 +46,17 @@ This relationship is significant due to small p value. The p value refers to the
 The model fit is calcluated in the R_script.R file.   
 The intercept given by lm() is 39.2348, very close to the mean difference given by t-test. This intercept refers to the difference between the population means of maternal and paternal DNMs. As this intercept is positive, it means that the population mean of paternal DNMs is 39.2348 higher than the population mean of maternal DNMs.   
 The p value of the intercept is smaller than 0.001, meaning that the difference is very significant.  
+     
+
+
+**Exercise 3.1**   
+The dataset chosen: The History of Himalayan Mountaineering Expeditions.  
+   
+   
+**Exercise 3.2**   
+Distributions of defense points vs. height and defense points vs. attack points are explored and plotted.   
+   
+   
+**Exercise 3.3**   
+Hypothesis: the distribution of defense points vs. attack points follows linear model.   
+Results: the p values of slope and intercept are smaller than 0.001, meaning that they are highly significant. However, the adjusted R-squared is 0.1924, meaning that this distribution poorly fit a linear model. Therefore, the distribution of defense points vs. attack points don't follow linear model. 

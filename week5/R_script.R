@@ -95,3 +95,36 @@ data_summary %>%
   lm(formula = DNM ~ 1 + source) %>% 
   summary()
 
+
+##### Exercise 3 #####
+# Step 3.1
+pokemon_df <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-04-01/pokemon_df.csv')
+
+# Step 3.2
+library(dplyr)
+
+pokemon_1 <- pokemon_df %>%
+  select(height, weight, hp, attack, defense)
+
+ggplot(data = pokemon_1, aes(x = height, y = defense)) +
+  geom_point() +
+  labs(
+    x = "Height",
+    y = "Defense points",
+    title = "Distribution of Defense Points vs. Height"
+  )
+ggsave("/Users/cmdb/qb25-answers/week5/ex4_defense_height.png")
+
+ggplot(data = pokemon_1, aes(x = attack, y = defense)) +
+  geom_point() +
+  labs(
+    x = "Attack points",
+    y = "Defense points",
+    title = "Distribution of Defense Points vs. Attack Points"
+  )
+ggsave("/Users/cmdb/qb25-answers/week5/ex4_defense_attack.png")
+
+# Step 3.3
+lm(data = pokemon_1, formula = attack ~ 1 + defense) %>% 
+  summary()
+
