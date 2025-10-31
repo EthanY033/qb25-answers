@@ -55,7 +55,7 @@ png("pca_heatmap_rotation.png", width = 800, height = 600)
 heatmap(as.matrix(pca_results_norm$rotation), Rowv = NA, Colv = NA)
 dev.off()
 
-var <- pca_results_norm$sdev^2
+var <- pca_results_norm$sdev^2 / sum(pca_results_norm$sdev^2) * 100
 var_data <- data.frame(
   PC = c(1: 21),
   var = var
@@ -65,7 +65,7 @@ ggplot(var_data, aes(x = PC, y = var)) +
   geom_bar(stat = "identity") +
   labs(title = "Variance Explained by Principal Components",
        x = "Number of Principal Components",
-       y = "Variance Explained") +
+       y = "Variance Explained (%)") +
   theme_minimal()
 ggsave("/Users/cmdb/qb25-answers/week7/variance_explained.png")
 
@@ -97,3 +97,10 @@ combined_cluster <- combined_cluster[order(combined_cluster[, "cluster_sorted"])
 png("cluster_heatmap.png")
 heatmap(combined_cluster, Rowv=NA, Colv=NA, RowSideColors=RColorBrewer::brewer.pal(12,"Paired")[combined_cluster[,9]], ylab="Gene")
 dev.off()
+
+####### Step 3 #######
+
+names <- combined_cluster[combined_cluster[, "cluster_sorted"] == 12, ] %>% 
+  rownames()
+names <- gsub('"', '', names)
+cat(names)
