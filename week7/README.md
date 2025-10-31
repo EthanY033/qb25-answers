@@ -16,4 +16,11 @@ The PCA data shows that the replicates of the same sample are close to each othe
 The heatmap and PC1 plot show that the PC1 increases from A1 to P2.4, with similar values for each replicate. Therefore, PC1 is best explained by tissue and less explained by replicate number.   
    
 
+   
+**Questions in Section 3**     
+1. Do the categories of enrichments make sense? Why?   
 
+(1) For clutser 1, the categories of enrichments make sense, because lots of genes in cluster are associated with immune response, and such genes can be tissue-specifically expressed.   
+   
+(2) For cluster 2, the categories of enrichments make sense, because lots of genes in cluster are associated with L-arginine biosynthesis or fatty acid oxidation, and such genes can be tissue-specifically expressed.   
+   

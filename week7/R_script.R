@@ -100,7 +100,17 @@ dev.off()
 
 ####### Step 3 #######
 
-names <- combined_cluster[combined_cluster[, "cluster_sorted"] == 12, ] %>% 
+names <- combined_cluster[combined_cluster[, "cluster_sorted"] == 2, ] %>% 
   rownames()
-names <- gsub('"', '', names)
-cat(names)
+
+fs <- file("cluster2.txt", open = "w")
+
+# With help from teacher
+# Write each line individually
+for (item in names) {
+  writeLines(item, fs)
+}
+
+close(fs)
+
+
