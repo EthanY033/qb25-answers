@@ -18,6 +18,9 @@ data_rna_sd500 <- data_rna[1:500, ]
 data_rna_sd500 <- t(data_rna_sd500[, -22])
 
 pca_results = prcomp(data_rna_sd500)
+
+####### Step 1.3 #######
+
 PC_12 <- data.frame(pca_results$x[, 1:2])
 PC_12$legend <- rownames(PC_12)
 PC_12 <- PC_12 %>%
@@ -28,7 +31,6 @@ PC_12 %>%
   geom_point() +
   theme_classic()
 ggsave("/Users/cmdb/qb25-answers/week7/PCA_plot.png")
-
 
 
 data_rna_sd500_norm <- scale(data_rna_sd500)
@@ -67,3 +69,31 @@ ggplot(var_data, aes(x = PC, y = var)) +
   theme_minimal()
 ggsave("/Users/cmdb/qb25-answers/week7/variance_explained.png")
 
+####### Step 2.1 #######
+
+combined = data_rna[,seq(1, 21, 3)]
+combined = combined + data_rna[,seq(2, 21, 3)]
+combined = combined + data_rna[,seq(3, 21, 3)]
+combined = combined / 3
+
+combined <- combined  %>% 
+  cbind(rowSds(combined))
+colnames(combined)[8] <- "Sd"
+
+combined <- combined[order(combined[, "Sd"], decreasing = TRUE), ]
+combined_selected <- combined[combined[, "Sd"] > 1, ]
+
+####### Step 2.2 #######
+
+set.seed(42)
+kmeans_results = kmeans(scale(as.matrix(combined_selected[, -8])), centers = 12, nstart = 100) 
+
+cluster_sorted <- kmeans_results$cluster
+cluster_sorted <- cluster_sorted[rownames(combined_selected)]
+combined_cluster <- cbind(combined_selected, cluster_sorted)
+
+combined_cluster <- combined_cluster[order(combined_cluster[, "cluster_sorted"]), ]
+
+png("cluster_heatmap.png")
+heatmap(combined_cluster, Rowv=NA, Colv=NA, RowSideColors=RColorBrewer::brewer.pal(12,"Paired")[combined_cluster[,9]], ylab="Gene")
+dev.off()
