@@ -151,3 +151,18 @@ nrow(res_sex_shuffle)
 # By FDR threshold controlling, the significant result number decreases from the
 # false-positive-rich 933 to false-positive-controlled 259. The shows that FDR 
 # threshold controlling filters out lots of false positive results. 
+
+
+####### Step 3 #######
+
+res_sex_original <- res_sex_original %>% 
+  filter(padj > 0) %>% 
+  left_join(chromo_info, by = "GENE_NAME") %>% 
+  arrange(padj) %>% 
+  mutate(flag = if_else(log2FoldChange > 1 | padj < 0.1, "highlighted", "common"))
+
+ggplot(data = res_sex_original, aes(x = log2FoldChange, y = -log10(padj), color = flag)) +
+  geom_point(size = 0.8) +
+  scale_color_manual(values = c("highlighted" = "red", "common" = "black")) +
+  labs(title = "Volcano plot for differential expression")
+ggsave("volcano_plot.png")  
