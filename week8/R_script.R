@@ -159,7 +159,7 @@ res_sex_original <- res_sex_original %>%
   filter(padj > 0) %>% 
   left_join(chromo_info, by = "GENE_NAME") %>% 
   arrange(padj) %>% 
-  mutate(flag = if_else(log2FoldChange > 1 | padj < 0.1, "highlighted", "common"))
+  mutate(flag = if_else(abs(log2FoldChange) > 1 | padj < 0.1, "highlighted", "common"))
 
 ggplot(data = res_sex_original, aes(x = log2FoldChange, y = -log10(padj), color = flag)) +
   geom_point(size = 0.8) +
